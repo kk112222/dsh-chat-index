@@ -1,0 +1,11 @@
+# dsh-chat-index bundle patch
+#
+# This file is the `dsh.bundle.patch` layer of the package: when the profile's
+# `dsh.profile.bundles` includes "dsh-chat-index", the profile boot merges this
+# patch (a single `insert` of the plugin row) into the composed tree. The
+# loader then resolves `name: 'dsh-chat-index'` to this package's main
+# (`lib/index.js`) and, because package.json declares `dsh.client`, the web
+# client module system additionally serves and activates `lib/client.js`.
+- insert:
+    - id: chat-index
+      name: 'dsh-chat-index'
