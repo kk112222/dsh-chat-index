@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "dsh-chat-index",
   "version": "0.1.0",
   "description": "DSH web plugin: a per-session question index on the right edge. Lists every user question (with time) of the main session and its branch/subagent sessions, click to jump & highlight; a thin rail with scrubber expands into a chain (tree) view.",
@@ -34,7 +34,11 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "watch": "node scripts/build.mjs --watch",
-    "check": "node scripts/build.mjs && node --check lib/client.js && node scripts/smoke.mjs"
+    "check": "node scripts/build.mjs && node --check lib/client.js && node scripts/smoke.mjs",
+    "prepublishOnly": "npm run check"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "MIT",
   "author": "xiaoshuai111",
