@@ -329,16 +329,38 @@ function Rail(props) {
 	const { geo, questions, hasLiveOnly, currentSeq, onJump, onExpand } = props;
 	const [scrub, setScrub] = useState(null);
 	const trackRef = useRef(null);
+	const scrubJustRef = useRef(false);
 
 	const count = questions.length;
 	const height = Math.max(10, geo.railBottom - geo.railTop);
-	const HEAD_H = 24;      // head strip (question count)
-	const TOGGLE_H = 26;    // expand button strip
 	const PAD_Y = 10;       // padding inside the track
 	const GAP = 14;         // minimum vertical distance between two dots
-	const trackHeight = Math.max(24, height - HEAD_H - TOGGLE_H);
+	// The track is a flex child, so its real height differs from the estimate
+	// once the head badge / expand button take their natural size. Measure it,
+	// otherwise the newest dot would be pushed below the track and cover the
+	// expand button.
+	const [trackH, setTrackH] = useState(0);
+	const estTrack = Math.max(24, height - 58);
+	const trackHeight = trackH > 24 ? trackH : estTrack;
 	const usable = Math.max(4, trackHeight - PAD_Y * 2);
 	const qTime = (q) => (typeof q.time === 'number' && q.time > 0 ? q.time : q.seq);
+
+	useEffect(() => {
+		const el = trackRef.current;
+		if (!el) return undefined;
+		const read = () => setTrackH(el.clientHeight || 0);
+		read();
+		let ro;
+		if (typeof ResizeObserver !== 'undefined') {
+			ro = new ResizeObserver(read);
+			ro.observe(el);
+		}
+		const iv = setInterval(read, 1500);
+		return () => {
+			if (ro) ro.disconnect();
+			clearInterval(iv);
+		};
+	}, [count, geo.railTop, geo.railBottom]);
 
 	// Time extent of the whole question list.
 	let minT = Infinity;
@@ -394,6 +416,13 @@ function Rail(props) {
 			for (let i = 0; i < posY.length; i++) posY[i] += lift;
 		}
 	}
+	// Hard clamp: dots must stay inside the measured track, so they can never
+	// overlap the expand button below it.
+	const loY = 7;
+	const hiY = Math.max(loY, trackHeight - 7);
+	for (let i = 0; i < posY.length; i++) {
+		posY[i] = Math.min(hiY, Math.max(loY, posY[i]));
+	}
 	const markerQs = picked.map((i) => questions[i]);
 
 	const indexAt = (clientY) => {
@@ -412,6 +441,7 @@ function Rail(props) {
 	};
 
 	const onPointerDown = (e) => {
+		scrubJustRef.current = true;
 		setScrub({ index: indexAt(e.clientY) });
 		e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId);
 	};
@@ -425,6 +455,7 @@ function Rail(props) {
 			setScrub(null);
 			if (q) onJump(null, q.seq);
 		}
+		setTimeout(() => { scrubJustRef.current = false; }, 80);
 	};
 
 	const flyout = scrub ? questions[scrub.index] : undefined;
@@ -471,10 +502,15 @@ function Rail(props) {
 		zIndex: 9001,
 	};
 	return h(Fragment, null,
-		h('div', { 'dsh-chat-index-rail': '', style: railStyle }, railChildren),
+		h('div', {
+			'dsh-chat-index-rail': '',
+			style: railStyle,
+			// Clicking anywhere on the rail that is not a dot/scrub opens the chain panel.
+			onClick: () => { if (scrubJustRef.current) return; onExpand(); },
+		}, railChildren),
 		flyout ? h('div', {
 			'dsh-chat-index-flyout': '',
-			style: { top: (geo.railTop + HEAD_H + yInTrack(qTime(flyout))) + 'px' },
+			style: { top: (geo.railTop + ((trackRef.current && trackRef.current.offsetTop) || 26) + yInTrack(qTime(flyout))) + 'px' },
 		},
 			h('div', null, formatTime(flyout.time)),
 			h('div', null, flyout.text)) : null,
