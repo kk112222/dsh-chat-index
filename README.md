@@ -29,12 +29,16 @@
 
 ## 截图 / Screenshots
 
-![右侧提问窄条](docs/preview-rail.svg)
+**右侧提问窄条(实际截图)**
 
-![提问链面板(含分支子树)](docs/preview-panel.svg)
+![右侧提问窄条](docs/rail.png)
 
-> 上图为仓库内的 **SVG 示意图**(与主题色一致)。真实截图将替换到
-> `docs/rail.png` 与 `docs/panel.png`,欢迎 PR 提交。
+**提问链面板(展开后,含分支子树)**
+
+![提问链面板](docs/preview-panel.svg)
+
+> 窄条为真实运行截图;链面板暂用仓库内 SVG 示意图,真实截图将替换为
+> `docs/panel.png`。
 
 ## 安装 / Install
 
