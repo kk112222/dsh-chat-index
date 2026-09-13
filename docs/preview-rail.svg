@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="640" viewBox="0 0 560 640" role="img" aria-label="dsh-chat-index: right-edge question rail with scrub flyout">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1c20"/>
+      <stop offset="1" stop-color="#141519"/>
+    </linearGradient>
+  </defs>
+  <rect width="560" height="640" fill="url(#bg)"/>
+
+  <!-- conversation column -->
+  <rect x="24" y="24" width="452" height="592" rx="14" fill="#202126" stroke="#2c2e35"/>
+
+  <!-- header -->
+  <text x="46" y="56" fill="#e8e9ee" font-family="ui-sans-serif, system-ui, Segoe UI, sans-serif" font-size="14" font-weight="600">Session · 提问索引</text>
+  <rect x="392" y="40" width="26" height="24" rx="7" fill="none" stroke="#3a3d45"/>
+  <text x="405" y="57" fill="#c9ccd4" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">≡</text>
+
+  <!-- message rows -->
+  <g font-family="ui-sans-serif, system-ui, Segoe UI, sans-serif">
+    <rect x="46" y="82" width="300" height="46" rx="10" fill="#2a2c33"/>
+    <rect x="58" y="98" width="240" height="7" rx="3.5" fill="#585c66"/>
+    <rect x="58" y="111" width="150" height="7" rx="3.5" fill="#4a4e57"/>
+
+    <rect x="150" y="142" width="300" height="86" rx="10" fill="#24262c"/>
+    <rect x="164" y="158" width="250" height="7" rx="3.5" fill="#565a64"/>
+    <rect x="164" y="173" width="268" height="7" rx="3.5" fill="#4d515a"/>
+    <rect x="164" y="188" width="200" height="7" rx="3.5" fill="#4d515a"/>
+    <rect x="164" y="203" width="120" height="7" rx="3.5" fill="#43474f"/>
+
+    <rect x="46" y="242" width="270" height="40" rx="10" fill="#2a2c33"/>
+    <rect x="58" y="257" width="210" height="7" rx="3.5" fill="#585c66"/>
+
+    <rect x="150" y="296" width="300" height="70" rx="10" fill="#24262c"/>
+    <rect x="164" y="312" width="256" height="7" rx="3.5" fill="#565a64"/>
+    <rect x="164" y="327" width="180" height="7" rx="3.5" fill="#4d515a"/>
+    <rect x="164" y="342" width="230" height="7" rx="3.5" fill="#43474f"/>
+
+    <rect x="46" y="380" width="240" height="40" rx="10" fill="#2a2c33"/>
+    <rect x="58" y="395" width="180" height="7" rx="3.5" fill="#585c66"/>
+
+    <rect x="150" y="434" width="300" height="60" rx="10" fill="#24262c"/>
+    <rect x="164" y="450" width="240" height="7" rx="3.5" fill="#565a64"/>
+    <rect x="164" y="465" width="170" height="7" rx="3.5" fill="#4d515a"/>
+  </g>
+
+  <!-- rail -->
+  <rect x="486" y="60" width="34" height="524" rx="10" fill="#26282e" stroke="#3a3d45"/>
+  <!-- count badge -->
+  <rect x="492" y="68" width="22" height="16" rx="8" fill="#31343b"/>
+  <text x="503" y="80" fill="#c9ccd4" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle">12</text>
+  <!-- axis -->
+  <line x1="503" y1="96" x2="503" y2="548" stroke="#3f434c" stroke-width="1"/>
+  <!-- dots -->
+  <g fill="#7d838f">
+    <circle cx="503" cy="112" r="4.5"/>
+    <circle cx="503" cy="150" r="4.5"/>
+    <circle cx="503" cy="196" r="4.5"/>
+    <circle cx="503" cy="262" r="4.5"/>
+    <circle cx="503" cy="316" r="4.5"/>
+    <circle cx="503" cy="392" r="4.5"/>
+    <circle cx="503" cy="470" r="4.5"/>
+  </g>
+  <!-- current (latest) dot -->
+  <circle cx="503" cy="516" r="6.5" fill="#4a7bd6"/>
+  <circle cx="503" cy="516" r="10" fill="none" stroke="#4a7bd6" stroke-opacity="0.35"/>
+  <!-- hover dot -->
+  <circle cx="503" cy="316" r="6.5" fill="#4a7bd6"/>
+  <!-- toggle -->
+  <rect x="491" y="556" width="24" height="24" rx="7" fill="#31343b"/>
+  <text x="503" y="573" fill="#c9ccd4" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">⇱</text>
+
+  <!-- flyout -->
+  <g>
+    <rect x="196" y="290" width="272" height="52" rx="10" fill="#2b2e35" stroke="#3d414a"/>
+    <text x="210" y="309" fill="#9aa0ac" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">2026-09-13 14:32</text>
+    <text x="210" y="328" fill="#e8e9ee" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">先做右侧提问索引的统一交互…</text>
+  </g>
+
+  <!-- caption -->
+  <text x="24" y="632" fill="#8b909c" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">右侧窄条:圆点按提问时间比例分布,悬停看摘要,点按跳转,拖动快速滑动</text>
+</svg>
