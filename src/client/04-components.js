@@ -7,8 +7,8 @@
 // ctx.sessions.binding(id).session (SessionFace = ObservableSnapshot) consumed
 // with useSyncExternalStore.
 
-const RAIL_W = 28;          // rail width in px
-const RAIL_GUTTER = 12;     // spacing from the conversation column edge
+const RAIL_W = 34;          // rail width in px
+const RAIL_GUTTER = 10;     // spacing from the conversation column edge
 const PANEL_MAX_W = 420;
 
 function ciLog(...args) {
@@ -332,49 +332,74 @@ function Rail(props) {
 
 	const count = questions.length;
 	const height = Math.max(10, geo.railBottom - geo.railTop);
-	const usable = Math.max(4, height - 16);
+	const HEAD_H = 24;      // head strip (question count)
+	const TOGGLE_H = 26;    // expand button strip
+	const PAD_Y = 10;       // padding inside the track
+	const GAP = 14;         // minimum vertical distance between two dots
+	const trackHeight = Math.max(24, height - HEAD_H - TOGGLE_H);
+	const usable = Math.max(4, trackHeight - PAD_Y * 2);
+	const qTime = (q) => (typeof q.time === 'number' && q.time > 0 ? q.time : q.seq);
 
 	// Time extent of the whole question list.
 	let minT = Infinity;
 	let maxT = -Infinity;
 	for (const q of questions) {
-		const t = typeof q.time === 'number' && q.time > 0 ? q.time : q.seq;
+		const t = qTime(q);
 		if (t < minT) minT = t;
 		if (t > maxT) maxT = t;
 	}
 	const span = maxT - minT || 1;
-	const yOfTime = (t) => 8 + ((t - minT) / span) * usable;
-	const timeAtY = (y) => minT + ((y - 8) / usable) * span;
+	const yInTrack = (t) => PAD_Y + ((t - minT) / span) * usable;
 
-	// Sample at most ~70 markers; positions follow time, so visual gaps match
-	// real time gaps between questions.
-	const markers = [];
-	if (count <= 70) {
-		for (const q of questions) markers.push(q);
+	// One dot per GAP of track height: dense stretches are down-sampled by
+	// nearest time, so dots can never clump into an unclickable cluster. The
+	// newest question is always kept.
+	const maxDots = Math.max(1, Math.floor(usable / GAP) + 1);
+	const picked = [];
+	if (count <= maxDots) {
+		for (let i = 0; i < count; i++) picked.push(i);
 	} else {
-		const slotCount = 70;
 		const used = new Set();
-		for (let i = 0; i < slotCount; i++) {
-			const targetT = minT + (i * span) / (slotCount - 1);
+		for (let s = 0; s < maxDots; s++) {
+			const targetT = minT + (s * span) / Math.max(1, maxDots - 1);
 			let best = -1;
 			let bestD = Infinity;
 			for (let j = 0; j < count; j++) {
 				if (used.has(j)) continue;
-				const t = typeof questions[j].time === 'number' && questions[j].time > 0 ? questions[j].time : questions[j].seq;
-				const d = Math.abs(t - targetT);
+				const d = Math.abs(qTime(questions[j]) - targetT);
 				if (d < bestD) { bestD = d; best = j; }
 			}
-			if (best >= 0) { used.add(best); markers.push(questions[best]); }
+			if (best >= 0) { used.add(best); picked.push(best); }
 		}
-		const last = questions[count - 1];
-		if (last && markers[markers.length - 1].seq !== last.seq) markers.push(last);
+		if (picked.indexOf(count - 1) === -1) picked.push(count - 1);
 	}
-	markers.sort((a, b) => a.seq - b.seq);
+	picked.sort((a, b) => a - b);
+
+	// Time positions, then relax to the minimum gap. The newest dot stays at
+	// the bottom of the track (overflow is pushed upwards), so the latest
+	// question is always visible instead of being clipped.
+	const posY = picked.map((i) => yInTrack(qTime(questions[i])));
+	for (let i = 1; i < posY.length; i++) {
+		if (posY[i] - posY[i - 1] < GAP) posY[i] = posY[i - 1] + GAP;
+	}
+	const tail = PAD_Y + usable;
+	if (posY.length > 0 && posY[posY.length - 1] > tail) {
+		const shift = posY[posY.length - 1] - tail;
+		for (let i = 0; i < posY.length; i++) posY[i] -= shift;
+		for (let i = posY.length - 2; i >= 0; i--) {
+			if (posY[i + 1] - posY[i] < GAP) posY[i] = posY[i + 1] - GAP;
+		}
+		if (posY[0] < PAD_Y) {
+			const lift = PAD_Y - posY[0];
+			for (let i = 0; i < posY.length; i++) posY[i] += lift;
+		}
+	}
+	const markerQs = picked.map((i) => questions[i]);
 
 	const indexAt = (clientY) => {
 		const r = trackRef.current ? trackRef.current.getBoundingClientRect() : null;
 		if (!r || count === 0) return 0;
-		const frac = Math.min(1, Math.max(0, (clientY - r.top - 8) / usable));
+		const frac = Math.min(1, Math.max(0, (clientY - r.top - PAD_Y) / usable));
 		const targetT = minT + frac * span;
 		let best = 0;
 		let bestD = Infinity;
@@ -403,7 +428,6 @@ function Rail(props) {
 	};
 
 	const flyout = scrub ? questions[scrub.index] : undefined;
-	const flyTime = (q) => (typeof q.time === 'number' && q.time > 0 ? q.time : q.seq);
 
 	const railChildren = [];
 	railChildren.push(h('div', {
@@ -419,16 +443,16 @@ function Rail(props) {
 		onPointerMove,
 		onPointerUp: endScrub,
 		onPointerCancel: endScrub,
-		style: { height: height + 'px' },
-	}, markers.map((q) => h('div', {
+		style: { height: trackHeight + 'px' },
+	}, markerQs.map((q, k) => h('div', {
 			key: 'm' + q.seq,
 			'dsh-chat-index-marker': '',
 			...(q.seq === currentSeq ? { 'dsh-chat-index-current': '' } : {}),
-			style: { top: yOfTime(flyTime(q)) + 'px' },
+			style: { top: posY[k] + 'px' },
 			title: formatTime(q.time) + '\n' + q.text,
 			onClick: (e) => { e.stopPropagation(); onJump(null, q.seq); },
 			onPointerDown: (e) => e.stopPropagation(),
-		}))));
+		}, h('span', { 'dsh-chat-index-dot': '' })))));
 	railChildren.push(h('button', {
 		key: 'toggle',
 		type: 'button',
@@ -450,7 +474,7 @@ function Rail(props) {
 		h('div', { 'dsh-chat-index-rail': '', style: railStyle }, railChildren),
 		flyout ? h('div', {
 			'dsh-chat-index-flyout': '',
-			style: { top: (geo.railTop + yOfTime(flyTime(flyout))) + 'px' },
+			style: { top: (geo.railTop + HEAD_H + yInTrack(qTime(flyout))) + 'px' },
 		},
 			h('div', null, formatTime(flyout.time)),
 			h('div', null, flyout.text)) : null,
