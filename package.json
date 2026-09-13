@@ -1,6 +1,6 @@
 {
   "name": "dsh-chat-index",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DSH web plugin: a per-session question index on the right edge. Lists every user question (with time) of the main session and its branch/subagent sessions, click to jump & highlight; a thin rail with scrubber expands into a chain (tree) view.",
   "keywords": [
     "dsh",
